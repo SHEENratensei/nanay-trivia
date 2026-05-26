@@ -46,8 +46,11 @@ body{display:flex;flex-direction:column;height:100vh;width:100vw}
 .host-q-text{font-size:clamp(16px,2vw,22px);font-weight:800;color:#2C1A22;line-height:1.35}
 
 /* Clue cards */
-.host-clue{background:#F5C6D8;border-radius:8px;display:flex;align-items:stretch;overflow:hidden;min-height:48px;opacity:.35;transition:opacity .3s}
-.host-clue.shown{opacity:1}
+.host-clue{background:#F5C6D8;border-radius:8px;display:flex;align-items:stretch;overflow:hidden;min-height:48px;transition:all .3s}
+.host-clue .host-clue-txt{color:transparent;transition:color .3s;user-select:none}
+.host-clue.shown .host-clue-txt{color:#2C1A22}
+.host-clue-badge{opacity:.4;transition:opacity .3s}
+.host-clue.shown .host-clue-badge{opacity:1}
 .host-clue-badge{background:#D4537E;color:#fff;font-size:11px;font-weight:800;padding:0 12px;display:flex;align-items:center;min-width:64px;justify-content:center}
 .host-clue-txt{font-size:clamp(13px,1.5vw,15px);color:#2C1A22;padding:10px 14px;font-weight:600;line-height:1.35;display:flex;align-items:center}
 
