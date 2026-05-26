@@ -86,6 +86,14 @@ body{display:flex;flex-direction:column;height:100vh;width:100vw}
 
 /* Phase banner */
 .phase-banner{border-radius:8px;padding:8px 12px;font-size:12px;font-weight:800;text-align:center;flex-shrink:0}
+.ans-reveal{background:#fff;border-radius:12px;border-left:6px solid #D4537E;padding:16px 20px;flex-shrink:0;display:none;animation:revealIn .4s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes revealIn{0%{transform:scale(.95);opacity:0}70%{transform:scale(1.02)}100%{transform:scale(1);opacity:1}}
+.ans-reveal.visible{display:block}
+.ans-reveal-eyebrow{font-size:10px;font-weight:800;color:#D4537E;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.ans-reveal-title{font-size:clamp(18px,2.2vw,26px);font-weight:900;color:#A8295A;margin-bottom:8px;line-height:1.2}
+.ans-reveal-divider{height:1px;background:#F5C6D8;margin-bottom:10px}
+.ans-reveal-sub{font-size:clamp(13px,1.5vw,16px);color:#5A2040;font-style:italic;font-weight:600;line-height:1.45}
+.ans-reveal-emoji{font-size:36px;float:right;margin-left:12px;line-height:1}
 .phase-open{background:rgba(163,45,45,.5);color:#fff}
 .phase-closed{background:#FAEEDA;color:#633806}
 .phase-reveal{background:#EAF3DE;color:#27500A}
@@ -169,6 +177,13 @@ body{display:flex;flex-direction:column;height:100vh;width:100vw}
         <button class="hbtn hbtn-next" onclick="nextQ()">Next Question →</button>
       </div>
       <div class="phase-banner phase-open" id="phase-banner">🟢 Accepting answers...</div>
+      <div class="ans-reveal" id="ans-reveal">
+        <div class="ans-reveal-emoji" id="ans-emoji"></div>
+        <div class="ans-reveal-eyebrow">The answer is</div>
+        <div class="ans-reveal-title" id="ans-title"></div>
+        <div class="ans-reveal-divider"></div>
+        <div class="ans-reveal-sub" id="ans-sub"></div>
+      </div>
     </div>
     <div class="game-right">
       <div class="section-title">Answer Wall — click to award winner</div>
@@ -219,7 +234,7 @@ var Qs=[
   {label:"Question 1",q:"What beloved Filipino phrase serves as the ultimate honorific title for mothers — recognizing their warmth, guidance, and central role in the family?",clues:["It is one of the most commonly used and beloved cultural descriptions of a mother's role in the Filipino household.","It poetically compares a mother to a source of radiance that keeps the whole household from stumbling in the dark.","It literally translates to \"light of the house\" in English — because without her, nobody can find anything. Including the remote. Including themselves."],ans:"Ilaw ng Tahanan",sub:"\"Light of the House\" — because without her, nobody can find anything. Including the remote. Including themselves.",emoji:"💡"},
   {label:"Question 2",q:"What legendary Filipino \"weapon\" is famously associated with mothers when disciplining children?",clues:["It usually starts its journey on a mother's feet… until it's suddenly reassigned mid-sentence.","It may look harmless, but it has an almost supernatural ability to find its target with pinpoint accuracy.","It is flat, flexible, and commonly made of rubber — yet somehow carries serious authority in the household."],ans:"Tsinelas (Slipper)",sub:"Flat. Rubber. Inescapable. The original guided missile of Filipino discipline.",emoji:"👡"},
   {label:"Question 3",q:"What is the most common unintentional scam by moms that almost all children fall prey to?",clues:["You or a friend may have experienced this at home.","You expect dessert but end up deeply disappointed.","You grab it from the freezer... and fish eyes stare back at you."],ans:"The Ice Cream Container That Is NOT Ice Cream",sub:"You opened it with joy and it greeted you with betrayal. And you will fall for it again next week.",emoji:"🍦"},
-  {label:"Question 4",q:"What is the best gift you can give Nanay that she will immediately brag about to her kumares?",clues:["Paper is the way to go.","No to red, purple, or yellow.","They can look like flowers — but make sure it's blue."],ans:"Money — Thousand-Peso Billsssss",sub:"Yes, that many. Do not ask questions. Just give.",emoji:"💵"},
+  {label:"Question 4",q:"What is the best gift you can give Nanay that she will immediately brag about to her kumares?",clues:["Paper is the way to go.","No to red, purple, or yellow.","They can look like flowers — but make sure it's blue."],ans:"Money — Thousand-Peso Billssss",sub:"Yes, that many. Do not ask questions. Just give.",emoji:"💵"},
   {label:"Question 5",q:"What classic Nanay behavior turns every empty container in the house into a surprise mystery box?",clues:["You were sure you threw away that empty coffee jar... yet somehow it reappeared on the shelf and now contains sugar.","Last month she wanted bottled soy sauce. This month, refill pouches — because sayang naman ang bote.","In a Filipino household, an ice cream container rarely contains ice cream. Today it's leftovers. Tomorrow, frozen fish."],ans:"Hoarding / Reusing Containers",sub:"Because Nanays can — and because sayang naman ang bote.",emoji:"♻️"},
   {label:"Question 6",q:"What Filipino mom superpower allows her to find missing items that were definitely not there two seconds ago?",clues:["You already checked the table, the cabinet, the sofa, and somehow still failed.","Your mother walks in, looks once, and immediately finds it while giving you a disappointed stare.","The object was somehow right in front of you the entire time — according to her."],ans:"Nanay Vision",sub:"Powered by patience, experience, and your inability to look properly.",emoji:"👁️"},
   {label:"Question 7",q:"What bag becomes a treasured family collection because Nanay cannot bring herself to let a single one go?",clues:["Every bag has a future. Nanay sees it. You do not. You will understand someday.","They live inside each other, Russian doll style, in a cabinet that is always suspiciously full.","It came from SM. It came from Puregold. It came from that Divisoria trip in 2014. They are all still here."],ans:"Plastic Bags",sub:"The most inevitable inheritance in Filipino history. Who you — ang Hermes mo.",emoji:"🛍️"},
@@ -264,6 +279,8 @@ function startQ(idx){
 }
 
 function renderHostQ(){
+  var rev=document.getElementById("ans-reveal");
+  if(rev)rev.classList.remove("visible");
   var d=Qs[curQ];
   document.getElementById("g-label").textContent=d.label;
   document.getElementById("g-num").textContent=d.label;
@@ -306,6 +323,7 @@ function pickWinner(name){
   if(winnerPicked)return;
   ws.send(JSON.stringify({type:"host_pick_winner",name:name}));
   winnerPicked=true;
+  showAnswerInline();
 }
 
 function noWinner(){
@@ -313,6 +331,19 @@ function noWinner(){
   ws.send(JSON.stringify({type:"host_no_winner"}));
   winnerPicked=true;
   phase="reveal";updatePhase();
+  showAnswerInline();
+}
+
+function showAnswerInline(){
+  var d=Qs[curQ];
+  if(!d)return;
+  var box=document.getElementById("ans-reveal");
+  document.getElementById("ans-emoji").textContent=d.emoji;
+  document.getElementById("ans-title").textContent=d.ans;
+  document.getElementById("ans-sub").textContent=d.sub;
+  box.classList.add("visible");
+  // Scroll into view smoothly
+  setTimeout(function(){box.scrollIntoView({behavior:"smooth",block:"nearest"});},100);
 }
 
 function nextQ(){
